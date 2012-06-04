@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>Expenses Manager 0.9</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/jquery.mobile-1.1.0.min.css" />
+	<script src="js/handlebars-1.0.0.beta.6.js"></script>
+	<script src="js/jquery-1.7.1.min.js"></script>
+	<script src="js/jquery.mobile-1.1.0.min.js"></script>
+	<script src="js/underscore.js"></script>
+	<script src="js/expenses_manager.js"></script>
+	 
+	<script type="text/javascript">
+
+	$(document).ready(function() {
+
+	 	var d = new Date();
+	  	var curr_date = ("0" + d.getDate()).slice(-2);
+	  	var curr_month = ('0' + (d.getMonth()+1)).slice(-2); //months are zero based
+	  	var curr_year = d.getFullYear();
+	  	
+		$('#date').attr('value', curr_year + "-" + curr_month + "-" + curr_date);
+
+		$.fn.serializeObject = function()
+		{
+		    var o = {};
+		    var a = this.serializeArray();
+		    $.each(a, function() {
+		        if (o[this.name] !== undefined) {
+		            if (!o[this.name].push) {
+		                o[this.name] = [o[this.name]];
+		            }
+		            o[this.name].push(this.value || '');
+		        } else {
+		            o[this.name] = this.value || '';
+		        }
+		    });
+		    return o;
+		};
+
+		function clearForm() {
+			var form = $('form');
+			form.find('#amount').val('');
+			form.find('#location').val('');
+			form.find('#reason').val('');
+		}
+
+
+	    $('form').submit(function() {
+
+	        console.log($('form').serializeObject());
+	        ExpensesManager.init($('form').serializeObject());
+	        ExpensesManager.addExpense();
+	        clearForm();
+	        return false;
+	    });
+
+	    $('#showAll').on('click', function() {
+	    	$.mobile.changePage("#show", "slideup");
+	    	ExpensesManager.renderAllExpenses();
+	    	$('#content-placeholder').listview('refresh');
+	    });
+		
+	});
+</script>
+</head> 
+<body> 
+
+<div data-role="page" id="add">
+
+	<div data-role="header">
+		<h1>Add new expense</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+		<form action="" id="expenses-form">
+
+			<div data-role="fieldcontain">
+				<label for="date">Date:</label>
+				<input type="date" id="date" name="date"/>
+			</div>
+
+			<div data-role="fieldcontain">
+				<label for="type">Type:</label>
+				<select name="type" id="type">
+					<option value="Parking and motorway">Parking and motorway</option>
+					<option value="Taxi">Taxi</option>
+					<option value="Plane and train ticket">Plane and train ticket</option>
+					<option value="Hotel">Hotel</option>
+					<option value="Meals deductable" selected>Meals deductable</option>
+					<option value="Meals non-deductable">Meals non-deductable</option>
+				</select>
+			</div>
+
+			<div data-role="fieldcontain">
+				<label for="amount">Amount:</label>
+				<input type="number" pattern="[0-9]*" id="amount" name="amount">
+
+				<label for="currency">Currency:</label>
+				<select name="currency" id="currency">
+					<option value="EUR">EUR</option>
+					<option value="SEK">SEK</option>
+				</select>
+			</div>
+
+			<div data-role="fieldcontain">
+				<label for="location">Location:</label>
+				<input type="text" id="location" name="location"/>
+			</div>
+
+			<div data-role="fieldcontain">
+				<label for="reason">Reason:</label>
+				<textarea name="reason" id="reason"></textarea>
+			</div>
+
+			<button type="submit">Submit</button>
+		</form>	
+
+		<button id="showAll">Show all</button>
+
+	</div><!-- /content -->
+
+</div><!-- /page -->
+
+<div data-role="page" id="show" data-add-back-btn="true">
+
+	<div data-role="header">
+		<h1>Overview</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+
+		<ul id="content-placeholder" data-role="listview"></ul>
+
+		<script id="expenses-template" type="text/x-handlebars-template">
+		  {{#each expenses}}
+		  	<li data-role="list-divider">{{date}}</li>
+		  	<li data-icon="arrow-r" data-iconpos"right">
+		  		<h3 class="ui-li-heading">{{type}}</h3>
+		  		<p class="ui-li-desc"><strong>{{amount}} {{currency}}</strong></p>
+		  		<p class="ui-li-desc">{{location}}</p>
+		  		<p class="ui-li-desc">{{reason}}</p>
+		  	</li>
+		  {{/each}}
+		</script>
+		
+		
+
+	</div><!-- /content -->
+
+</div><!-- /page -->
+
+
+
+</body>
+</html>

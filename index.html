@@ -6,9 +6,9 @@
 	<link rel="stylesheet" href="css/jquery.mobile-1.1.0.min.css" />
 	<script src="js/handlebars-1.0.0.beta.6.js"></script>
 	<script src="js/jquery-1.7.1.min.js"></script>
-	<script src="js/jquery.mobile-1.1.0.min.js"></script>
 	<script src="js/underscore.js"></script>
 	<script src="js/expenses_manager.js"></script>
+	<script src="js/jquery.mobile-1.1.0.min.js"></script>
 	 
 	<script type="text/javascript">
 
@@ -59,6 +59,10 @@
 	    	$.mobile.changePage("#show", "slideup");
 	    	ExpensesManager.renderAllExpenses();
 	    	$('#content-placeholder').listview('refresh');
+	    });
+
+	    $('#sendToServer').on('click', function() {
+	    	ExpensesManager.sendToServer();
 	    });
 		
 	});
@@ -134,15 +138,21 @@
 
 		<script id="expenses-template" type="text/x-handlebars-template">
 		  {{#each expenses}}
-		  	<li data-role="list-divider">{{date}}</li>
+		  	{{#if date}}
+			<li data-role="list-divider">{{date}}</li>
+			{{/if}}
 		  	<li data-icon="arrow-r" data-iconpos"right">
+		  	<a href="test">
 		  		<h3 class="ui-li-heading">{{type}}</h3>
 		  		<p class="ui-li-desc"><strong>{{amount}} {{currency}}</strong></p>
 		  		<p class="ui-li-desc">{{location}}</p>
 		  		<p class="ui-li-desc">{{reason}}</p>
+		  	</a>
 		  	</li>
 		  {{/each}}
 		</script>
+
+		<button id="sendToServer">Send to server</button>
 		
 		
 

@@ -1,3 +1,6 @@
+//TODO: Strip away date header if same as previous
+//TODO: Geolocation
+//TODO: Currency converter
 var ExpensesManager = {
 
 	config: null,
@@ -43,33 +46,53 @@ var ExpensesManager = {
 		}
 	},
 
-	renderAllExpenses: function() {
+	getAllExpenses: function() {
+		var exp = [];
 		if (localStorage.length > 0) {
-			var exp = [];
-			console.log(window.localStorage.getItem('Expenses:1'));
             for (i = 0; i < window.localStorage.length; i++) {
                 key = window.localStorage.key(i);
                 if (/Expenses:\d+/.test(key)) {
-                	console.log(JSON.parse(window.localStorage.getItem(key)));
+                	//console.log(JSON.parse(window.localStorage.getItem(key)));
                 	exp.push(JSON.parse(window.localStorage.getItem(key)));
 				}
             }
             // Sorting by date
-            _.sortBy( exp, 'date' );
-            exp.reverse();
-		};	
-		// Templating
+            console.log(exp);
+			exp.sort(function(a, b) {
+ 				var dateA = new Date(a.date), dateB =new Date(b.date);
+				return dateA - dateB;
+			});
+			exp.reverse();
+			console.log(exp);
+		};		
+		return exp;
+	},
 
+	renderAllExpenses: function() {
+		var exp = ExpensesManager.getAllExpenses();
+		for (i = 0; i < exp.length; i++) {
+			if (i > 0 && exp[i].date == exp[i - 1].date)
+				exp[i].date = "";
+		}
+		// Templating
 		var source   = $("#expenses-template").html();
   		var template = Handlebars.compile(source);
   		var data = { expenses: exp };
   		$("#content-placeholder").html(template(data));
+	},
+
+	sendToServer: function() {
+		var exp = ExpensesManager.getAllExpenses();
+		console.log('json string ' + JSON.stringify(exp));
+		// XHR Request
+		var xhr = $.post("http://localhost/expenses-manager/30template.php", { 'expenses': JSON.stringify(exp) }, function(data) {
+     		alert("Data was successfully sent to server");
+   		}).error(function() { alert("ERROR: Could not send data to server: " + xhr.status); });
 	}
 
 }
 
 //Helpers
-
 Array.findAndRemove = function(array, index) {
 	for (var i = array.length - 1; i >= 0; i--) {
 		tmpObj = JSON.parse(array[i]);

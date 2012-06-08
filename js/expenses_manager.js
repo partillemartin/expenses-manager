@@ -26,10 +26,12 @@ var ExpensesManager = {
 
 		if (!id) {
 			//add
+			console.log('adding expense');
 			entry.id = ExpensesManager.nextIndex;
 			window.localStorage.setItem("nextIndex", ++ExpensesManager.nextIndex); //Only update index if add new
 		} else {
-			//update by removing it from array
+			//update
+			console.log('updating expense');
 			entry.id = id;
 		}
 		window.localStorage.setItem("Expenses:" + entry.id, JSON.stringify(entry));
@@ -46,33 +48,45 @@ var ExpensesManager = {
 		}
 	},
 
+	getExpense: function(id) {
+		var exp = localStorage.getItem("Expenses:" + id);
+		return exp;
+	},
+
 	getAllExpenses: function() {
 		var exp = [];
 		if (localStorage.length > 0) {
             for (i = 0; i < window.localStorage.length; i++) {
                 key = window.localStorage.key(i);
                 if (/Expenses:\d+/.test(key)) {
-                	//console.log(JSON.parse(window.localStorage.getItem(key)));
                 	exp.push(JSON.parse(window.localStorage.getItem(key)));
 				}
             }
-            // Sorting by date
-            console.log(exp);
+            // Sorting by date TODO: Break out to optional
 			exp.sort(function(a, b) {
  				var dateA = new Date(a.date), dateB =new Date(b.date);
 				return dateA - dateB;
 			});
 			exp.reverse();
-			console.log(exp);
 		};		
 		return exp;
 	},
 
 	renderAllExpenses: function() {
+		//TODO: Refactor me
 		var exp = ExpensesManager.getAllExpenses();
-		for (i = 0; i < exp.length; i++) {
-			if (i > 0 && exp[i].date == exp[i - 1].date)
-				exp[i].date = "";
+		var prevValue = null;
+		var i = 0;
+		var test;
+		while(i < exp.length) {
+			if (exp[i].date != prevValue) {
+			test = true;
+			} else {
+				test = false;
+			}
+			prevValue = exp[i].date;
+			if(test === false) { exp[i].date = '';}
+			i++;
 		}
 		// Templating
 		var source   = $("#expenses-template").html();
@@ -81,30 +95,18 @@ var ExpensesManager = {
   		$("#content-placeholder").html(template(data));
 	},
 
-	sendToServer: function() {
+	sendToServer: function(name, container) {
 		var exp = ExpensesManager.getAllExpenses();
+		var fullname = name.firstname + ' ' + name.lastname;
 		console.log('json string ' + JSON.stringify(exp));
+		
 		// XHR Request
-		var xhr = $.post("http://localhost/expenses-manager/30template.php", { 'expenses': JSON.stringify(exp) }, function(data) {
-     		alert("Data was successfully sent to server");
+		$.mobile.showPageLoadingMsg() 
+		var xhr = $.post("http://localhost/expenses-manager/30template.php", { 'expenses': JSON.stringify(exp), 'name': fullname }, function(data) {
+     		//alert("Data was successfully sent to server: " + data);
+     		$.mobile.hidePageLoadingMsg();
+     		$(container).html('You can download your excelfile at <a href="/' + data +'">' + 'this place' + '</a>');
    		}).error(function() { alert("ERROR: Could not send data to server: " + xhr.status); });
 	}
 
 }
-
-//Helpers
-Array.findAndRemove = function(array, index) {
-	for (var i = array.length - 1; i >= 0; i--) {
-		tmpObj = JSON.parse(array[i]);
-		if (index == tmpObj.id)
-			Array.remove(array, i);
-	};
-	return array;
-}
-
-// Array Remove - By John Resig (MIT Licensed)
-Array.remove = function(array, from, to) {
-  var rest = array.slice((to || from) + 1 || array.length);
-  array.length = from < 0 ? array.length + from : from;
-  return array.push.apply(array, rest);
-};

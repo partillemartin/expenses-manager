@@ -18,11 +18,11 @@
 	  	var curr_date = ("0" + d.getDate()).slice(-2);
 	  	var curr_month = ('0' + (d.getMonth()+1)).slice(-2); //months are zero based
 	  	var curr_year = d.getFullYear();
+	  	var updateIndex = null;
 	  	
 		$('#date').attr('value', curr_year + "-" + curr_month + "-" + curr_date);
 
-		$.fn.serializeObject = function()
-		{
+		$.fn.serializeObject = function() {
 		    var o = {};
 		    var a = this.serializeArray();
 		    $.each(a, function() {
@@ -43,27 +43,114 @@
 			form.find('#amount').val('');
 			form.find('#location').val('');
 			form.find('#reason').val('');
+			updateIndex = null;
 		}
 
 
 	    $('form').submit(function() {
-
 	        console.log($('form').serializeObject());
 	        ExpensesManager.init($('form').serializeObject());
-	        ExpensesManager.addExpense();
+	        ExpensesManager.addExpense(updateIndex);
 	        clearForm();
 	        return false;
 	    });
 
-	    $('#showAll').on('click', function() {
+	    $('#showAll').live('click', function() {
 	    	$.mobile.changePage("#show", "slideup");
 	    	ExpensesManager.renderAllExpenses();
 	    	$('#content-placeholder').listview('refresh');
 	    });
 
-	    $('#sendToServer').on('click', function() {
-	    	ExpensesManager.sendToServer();
+	    $('#sendToServer').live('click', function() {
+	    	fillOutName();
 	    });
+
+	    function fillOutName() {
+	    	$.mobile.changePage("#send", "slideup");
+	    	$('.back').show();
+	    }
+
+	    $('#sendToServer2').live('click', function() {
+	    	if(navigator.onLine) {
+	    		var name = {};
+	    		name.firstname = $('#firstname').attr('value');
+	    		name.lastname = $('#lastname').attr('value');
+	    		ExpensesManager.sendToServer(name, '#callback');
+	    	} else {
+	    		alert('You need to have a internet connection for that.');
+	    		return false;
+	    	}	    	
+	    });
+
+	    $('a.update').live('click', function() {
+	    	//TODO: Refactor me
+	    	$('#delete').show();
+	    	$('.back').show();
+	    	var id = $(this).data('expid');
+	    	var exp = ExpensesManager.getExpense(id);
+	    	$.mobile.changePage("#add", "slideup");
+	    	var obj = $.parseJSON(exp);
+
+	    	$('#date').attr('value', obj.date);
+	    	$('#type').val(obj.type);
+	    	var index = 4; //default to Meals deductable
+			switch(obj.type)
+			{
+				case 'Parking and motorway':
+				  index = 0;
+				  break;
+				case 'Taxi':
+				  index = 1;
+				  break;
+				case 'Plane and train ticket':
+				  index = 2;
+				  break;
+				case 'Hotel':
+				  index = 3;
+				  break;
+				case 'Meals deductable':
+				  index = 4;
+				  break;
+				case 'Meals non-deductable':
+				  index = 5;
+				  break;
+			}
+	    	$('#type')[0].selectedIndex = index;
+			$('#type').selectmenu("refresh");
+			$('#amount').attr('value', obj.amount);
+			$('#currency').val(obj.currency);
+			var currIndex = 0;
+			switch(obj.currency)
+			{
+				case 'EUR':
+				  currIndex = 0;
+				  break;
+				case 'SEK':
+				  currIndex = 1;
+				  break;
+			}
+			$('#currency')[0].selectedIndex = currIndex;
+			$('#currency').selectmenu("refresh");
+			$('#location').attr('value', obj.location);
+			$('#reason').attr('value', obj.reason);
+			$('#add h1').text('Update expense');
+			updateIndex = id;
+	    });
+
+		$('#delete').live('click', function() {
+			ExpensesManager.deleteExpense(updateIndex);
+	    	$.mobile.changePage("#show", "slideup");
+	    	ExpensesManager.renderAllExpenses();
+	    	$('#content-placeholder').listview('refresh');
+		});
+
+		$('#home').live('click', function() {
+			clearForm();
+	    	$.mobile.changePage("#add", "slideup");
+	    	$('#add h1').text('Add expense');
+	    	$('#delete').hide();
+	    	$('.back').hide();
+		});
 		
 	});
 </script>
@@ -73,10 +160,14 @@
 <div data-role="page" id="add">
 
 	<div data-role="header">
+		<a class="back" data-rel="back" data-icon="back" style="display: none;">Back</a>
 		<h1>Add new expense</h1>
 	</div><!-- /header -->
 
 	<div data-role="content">	
+
+		<a id="delete" data-role="button" data-icon="delete" data-iconpos="right" style="display:none;">Delete</a>
+
 		<form action="" id="expenses-form">
 
 			<div data-role="fieldcontain">
@@ -91,7 +182,7 @@
 					<option value="Taxi">Taxi</option>
 					<option value="Plane and train ticket">Plane and train ticket</option>
 					<option value="Hotel">Hotel</option>
-					<option value="Meals deductable" selected>Meals deductable</option>
+					<option value="Meals deductable">Meals deductable</option>
 					<option value="Meals non-deductable">Meals non-deductable</option>
 				</select>
 			</div>
@@ -117,18 +208,19 @@
 				<textarea name="reason" id="reason"></textarea>
 			</div>
 
-			<button type="submit">Submit</button>
+			<button type="submit" data-icon="check" data-theme="b">Submit</button>
 		</form>	
 
-		<button id="showAll">Show all</button>
+		<button id="showAll" data-icon="forward">Show all</button>
 
 	</div><!-- /content -->
 
 </div><!-- /page -->
 
-<div data-role="page" id="show" data-add-back-btn="true">
+<div data-role="page" id="show">
 
 	<div data-role="header">
+		<a id="home" data-icon="home">Home</a>
 		<h1>Overview</h1>
 	</div><!-- /header -->
 
@@ -141,8 +233,8 @@
 		  	{{#if date}}
 			<li data-role="list-divider">{{date}}</li>
 			{{/if}}
-		  	<li data-icon="arrow-r" data-iconpos"right">
-		  	<a href="test">
+		  	<li data-icon="arrow-r" data-iconpos="right">
+		  	<a href="#" class="update" data-expid="{{id}}">
 		  		<h3 class="ui-li-heading">{{type}}</h3>
 		  		<p class="ui-li-desc"><strong>{{amount}} {{currency}}</strong></p>
 		  		<p class="ui-li-desc">{{location}}</p>
@@ -152,15 +244,38 @@
 		  {{/each}}
 		</script>
 
-		<button id="sendToServer">Send to server</button>
-		
-		
+		<button id="sendToServer" data-icon="check" data-theme="b">Send all to server</button>
 
 	</div><!-- /content -->
 
 </div><!-- /page -->
 
+<div data-role="page" id="send">
 
+	<div data-role="header">
+		<a class="back" data-rel="back" data-icon="back">Back</a>
+		<h1>Send all expenses</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">
+
+		<div data-role="fieldcontain">
+			<label for="firstname">First name:</label>
+			<input type="text" id="firstname" name="firstname"/>
+		</div>
+
+		<div data-role="fieldcontain">
+			<label for="lastname">Last name:</label>
+			<input type="text" id="lastname" name="lastname"/>
+		</div>
+
+		<button id="sendToServer2" data-icon="check" data-theme="b">GO!</button>
+
+		<div id="callback"></div>
+
+	</div><!-- /content -->
+
+</div><!-- /page -->
 
 </body>
 </html>

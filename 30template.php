@@ -35,17 +35,17 @@ require_once 'libs/phpexcel/Classes/PHPExcel/IOFactory.php';
 
 
 
-echo date('H:i:s') , " Load from Excel5 template" , PHP_EOL;
+/*echo date('H:i:s') , " Load from Excel5 template" , PHP_EOL;*/
 $objReader = PHPExcel_IOFactory::createReader('Excel5');
 $objPHPExcel = $objReader->load("Expenses_Template.xls");
 
 
 
 
-echo date('H:i:s') , " Add new data to the template" , PHP_EOL;
+/*echo date('H:i:s') , " Add new data to the template" , PHP_EOL;*/
 
 $post = $_POST['expenses'];
-
+$post_name = $_POST['name'];
 $data = json_decode($post);
 
 /*$objPHPExcel->getActiveSheet()->setCellValue('D1', PHPExcel_Shared_Date::PHPToExcel(time()));*/
@@ -84,16 +84,19 @@ foreach($data as $r => $dataRow) {
 	$objPHPExcel->getActiveSheet()->setCellValue('U'.$row, $dataRow->currency);
 }
 
-$objPHPExcel->getActiveSheet()->setCellValue('B7', 'Martin Påhlsson');
+$objPHPExcel->getActiveSheet()->setCellValue('B7', $post_name);
 
-echo date('H:i:s') , " Write to Excel5 format" , PHP_EOL;
+$today = date("Ymd");
+/*echo date('H:i:s') , " Write to Excel5 format" , PHP_EOL;*/
 $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-$objWriter->save('Expenses_Martin_Påhlsson_20120501.xls');
-echo date('H:i:s') , " File written to " , str_replace('.php', '.xls', __FILE__) , PHP_EOL;
+$objWriter->save('Expenses_' . $post_name . '_' . $today . '.xls');
+/*echo date('H:i:s') , " File written to " , str_replace('.php', '.xls', __FILE__) , PHP_EOL;*/
 
 
 // Echo memory peak usage
-echo date('H:i:s') , " Peak memory usage: " , (memory_get_peak_usage(true) / 1024 / 1024) , " MB" , PHP_EOL;
+/*echo date('H:i:s') , " Peak memory usage: " , (memory_get_peak_usage(true) / 1024 / 1024) , " MB" , PHP_EOL;*/
 
 // Echo done
-echo date('H:i:s') , " Done writing file" , PHP_EOL;
+/*echo date('H:i:s') , " Done writing file" , PHP_EOL;*/
+$post_name = preg_replace("/ +/", "_", $post_name);
+echo '/expenses-manager' . '/Expenses_' . $post_name . '_' . $today . '.xls' ;

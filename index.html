@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html manifest="offline.manifest">
 	<head>
 	<title>Expenses Manager 0.9</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -78,7 +78,8 @@
 	    		var name = {};
 	    		name.firstname = $('#firstname').attr('value');
 	    		name.lastname = $('#lastname').attr('value');
-	    		ExpensesManager.sendToServer(name, '#callback');
+	    		var email = $('#email').attr('value');
+	    		ExpensesManager.sendToServer(name, email, '#callback');
 	    	} else {
 	    		alert('You need to have a internet connection for that.');
 	    		return false;
@@ -276,6 +277,11 @@
 		<div data-role="fieldcontain">
 			<label for="lastname">Last name:</label>
 			<input type="text" id="lastname" name="lastname"/>
+		</div>
+
+		<div data-role="fieldcontain">
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" placeholder="Where your download-link is sent"/>
 		</div>
 
 		<button id="sendToServer2" data-icon="check" data-theme="b">GO!</button>

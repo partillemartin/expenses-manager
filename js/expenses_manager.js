@@ -95,17 +95,19 @@ var ExpensesManager = {
   		$("#content-placeholder").html(template(data));
 	},
 
-	sendToServer: function(name, container) {
+	sendToServer: function(name, email, container) {
 		var exp = ExpensesManager.getAllExpenses();
 		var fullname = name.firstname + ' ' + name.lastname;
 		console.log('json string ' + JSON.stringify(exp));
 		
 		// XHR Request
 		$.mobile.showPageLoadingMsg() 
-		var xhr = $.post("http://localhost/expenses-manager/30template.php", { 'expenses': JSON.stringify(exp), 'name': fullname }, function(data) {
+		var xhr = $.post("30template.php", { 'expenses': JSON.stringify(exp), 'name': fullname, 'email': email }, function(data) {
      		//alert("Data was successfully sent to server: " + data);
      		$.mobile.hidePageLoadingMsg();
-     		$(container).html('You can download your excelfile at <a href="/' + data +'">' + 'this place' + '</a>');
+     		console.log('download-link: ' + data);
+     		$(container).html('An email was sent to you with your download-link.');
+     		alert(data);
    		}).error(function() { alert("ERROR: Could not send data to server: " + xhr.status); });
 	}
 

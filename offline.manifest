@@ -1,0 +1,14 @@
+CACHE MANIFEST
+#This is a comment
+
+CACHE:
+index.html
+css/jquery.mobile-1.1.0.min.css
+css/images/ajax-loader.gif
+css/images/icons-18-white.png
+
+NETWORK:
+30template.php
+
+FALLBACK:
+/api offline.html

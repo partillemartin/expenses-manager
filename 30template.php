@@ -33,27 +33,17 @@ date_default_timezone_set('Europe/London');
 /** PHPExcel_IOFactory */
 require_once 'libs/phpexcel/Classes/PHPExcel/IOFactory.php';
 
-
-
-/*echo date('H:i:s') , " Load from Excel5 template" , PHP_EOL;*/
 $objReader = PHPExcel_IOFactory::createReader('Excel5');
 $objPHPExcel = $objReader->load("Expenses_Template.xls");
 
-
-
-
-/*echo date('H:i:s') , " Add new data to the template" , PHP_EOL;*/
-
 $post = $_POST['expenses'];
 $post_name = $_POST['name'];
+$post_email = $_POST['email'];
 $data = json_decode($post);
-
-/*$objPHPExcel->getActiveSheet()->setCellValue('D1', PHPExcel_Shared_Date::PHPToExcel(time()));*/
 
 $baseRow = 13;
 foreach($data as $r => $dataRow) {
 	$row = $baseRow + $r;
-	/*$objPHPExcel->getActiveSheet()->insertNewRowBefore($row,1);*/
 	$objPHPExcel->getActiveSheet()->setCellValue('A'.$row, $dataRow->date);
 	$objPHPExcel->getActiveSheet()->setCellValue('B'.$row, $dataRow->location);
 	$objPHPExcel->getActiveSheet()->setCellValue('C'.$row, $dataRow->reason);
@@ -87,16 +77,15 @@ foreach($data as $r => $dataRow) {
 $objPHPExcel->getActiveSheet()->setCellValue('B7', $post_name);
 
 $today = date("Ymd");
-/*echo date('H:i:s') , " Write to Excel5 format" , PHP_EOL;*/
+
 $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-$objWriter->save('Expenses_' . $post_name . '_' . $today . '.xls');
-/*echo date('H:i:s') , " File written to " , str_replace('.php', '.xls', __FILE__) , PHP_EOL;*/
+$milliseconds = 1000 * strtotime(date('H:i:s'));
+$objWriter->save($milliseconds . '.xls');
 
-
-// Echo memory peak usage
-/*echo date('H:i:s') , " Peak memory usage: " , (memory_get_peak_usage(true) / 1024 / 1024) , " MB" , PHP_EOL;*/
-
-// Echo done
-/*echo date('H:i:s') , " Done writing file" , PHP_EOL;*/
-$post_name = preg_replace("/ +/", "_", $post_name);
-echo '/expenses-manager' . '/Expenses_' . $post_name . '_' . $today . '.xls' ;
+$to = $post_email;
+$subject = "Your expenses document";
+$message = "Hello! You can download your xls-file here: " . "http://www." . $_SERVER['SERVER_NAME'] . "/expenses-manager/" . $milliseconds . ".xls";
+$from = "expenses@expenses-manager.com";
+$headers = "From:" . $from;
+mail($to,$subject,$message,$headers);
+echo "Mail Sent.";

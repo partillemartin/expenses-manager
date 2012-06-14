@@ -42,7 +42,7 @@ var ExpensesManager = {
 	},
 
 	deleteAllExpenses: function() {
-		if(confirm('sure?')) {
+		if(confirm('Delete all expenses?')) {
 			window.localStorage.clear();
 			ExpensesManager.nextIndex = 1;
 		}

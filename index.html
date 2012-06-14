@@ -147,6 +147,11 @@
 	    	$('#content-placeholder').listview('refresh');
 		});
 
+		$('#delete_all').live('click', function() {
+			ExpensesManager.deleteAllExpenses();
+	    	$.mobile.changePage("#add", "slideup");
+		});
+
 		$('#home').live('click', function() {
 			clearForm();
 	    	$.mobile.changePage("#add", "slideup");
@@ -248,6 +253,7 @@
 		</script>
 
 		<button id="sendToServer" data-icon="check" data-theme="b">Send all to server</button>
+		<a id="delete_all" data-role="button" data-icon="delete" data-iconpos="right">Delete all expenses</a>
 
 	</div><!-- /content -->
 

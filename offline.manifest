@@ -3,12 +3,17 @@ CACHE MANIFEST
 
 CACHE:
 index.html
+
 css/jquery.mobile-1.1.0.min.css
 css/images/ajax-loader.gif
 css/images/icons-18-white.png
+
+js/expenses_manager.js
+js/handlebars-1.0.0.beta.6.js
+js/jquery-1.7.1.min.js
+js/jquery.mobile-1.1.0.min.js
 
 NETWORK:
 30template.php
 
 FALLBACK:
-/api offline.html

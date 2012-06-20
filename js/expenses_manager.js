@@ -20,6 +20,7 @@ var ExpensesManager = {
 			type: ExpensesManager.config.type,
 			amount: ExpensesManager.config.amount,
 			currency: ExpensesManager.config.currency,
+			vat: ExpensesManager.config.vat,
 			location: ExpensesManager.config.location,
 			reason: ExpensesManager.config.reason
 		};
@@ -99,6 +100,11 @@ var ExpensesManager = {
 		var exp = ExpensesManager.getAllExpenses();
 		var fullname = name.firstname + ' ' + name.lastname;
 		console.log('json string ' + JSON.stringify(exp));
+
+		//Set name and email in localstorage
+		window.localStorage.setItem('firstname', name.firstname);
+		window.localStorage.setItem('lastname', name.lastname);
+		window.localStorage.setItem('email', email);
 		
 		// XHR Request
 		$.mobile.showPageLoadingMsg() 

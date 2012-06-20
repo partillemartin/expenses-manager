@@ -1,0 +1,10 @@
+1.0
+-Add support for Scandinavian currencies
+-Bugfixes for predefined values when returning to add expenses page
+-Adding totals in excel file
+-Remember email address and name with sending to server
+-Input for VAT
+
+1.1
+Automatic exchange rates
+Location awareness

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html manifest="offline.manifest">
 	<head>
-	<title>Expenses Manager 0.9</title>
+	<title>Expenses Manager 1.0</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="css/jquery.mobile-1.1.0.min.css" />
 	<link rel="apple-touch-icon" href="css/images/apple-touch-icons/apple-touch-icon.png" />
@@ -9,7 +9,6 @@
 	<link rel="apple-touch-icon" sizes="114x114" href="css/images/apple-touch-icons/apple-touch-icon-114x114.png" />
 	<script src="js/handlebars-1.0.0.beta.6.js"></script>
 	<script src="js/jquery-1.7.1.min.js"></script>
-	<script src="js/underscore.js"></script>
 	<script src="js/expenses_manager.js"></script>
 	<script src="js/jquery.mobile-1.1.0.min.js"></script>
 	 
@@ -24,6 +23,12 @@
 	  	var updateIndex = null;
 	  	
 		$('#date').attr('value', curr_year + "-" + curr_month + "-" + curr_date);
+		setDefaults();
+
+		function setDefaults() {
+			$('#type option').eq(4).attr('selected', 'selected');
+			$('#type').selectmenu("refresh");
+		}
 
 		$.fn.serializeObject = function() {
 		    var o = {};
@@ -46,6 +51,7 @@
 			form.find('#amount').val('');
 			form.find('#location').val('');
 			form.find('#reason').val('');
+			form.find('#vat').val('');
 			updateIndex = null;
 		}
 
@@ -71,6 +77,9 @@
 	    function fillOutName() {
 	    	$.mobile.changePage("#send", "slideup");
 	    	$('.back').show();
+	    	$('#firstname').val(window.localStorage.getItem('firstname'));
+	    	$('#lastname').val(window.localStorage.getItem('lastname'));
+	    	$('#email').val(window.localStorage.getItem('email'));
 	    }
 
 	    $('#sendToServer2').live('click', function() {
@@ -156,9 +165,14 @@
 		$('#home').live('click', function() {
 			clearForm();
 	    	$.mobile.changePage("#add", "slideup");
+	    	setDefaults();
 	    	$('#add h1').text('Add expense');
 	    	$('#delete').hide();
 	    	$('.back').hide();
+		});
+
+		$("#flip-vat").bind( "change", function(event, ui) {
+			$('#vat-container').toggle();
 		});
 		
 	});
@@ -170,7 +184,7 @@
 
 	<div data-role="header">
 		<a class="back" data-rel="back" data-icon="back" style="display: none;">Back</a>
-		<h1>Add new expense</h1>
+		<h1>Add expense</h1>
 	</div><!-- /header -->
 
 	<div data-role="content">	
@@ -199,12 +213,30 @@
 			<div data-role="fieldcontain">
 				<label for="amount">Amount:</label>
 				<input type="number" pattern="[0-9]*" id="amount" name="amount">
+			</div>
 
+			<div data-role="fieldcontain">
 				<label for="currency">Currency:</label>
 				<select name="currency" id="currency">
 					<option value="EUR">EUR</option>
 					<option value="SEK">SEK</option>
+					<option value="DKK">DKK</option>
+					<option value="NOK">NOK</option>
+					<option value="GBP">GBP</option>
 				</select>
+			</div>
+
+			<div data-role="fieldcontain">
+			<label for="flip-vat">VAT:</label>
+				<select name="slider" id="flip-vat" data-role="slider">
+					<option value="no">No</option>
+					<option value="yes">Yes</option>
+				</select> 
+			</div>
+
+			<div data-role="fieldcontain" style="display:none" id="vat-container">
+				<label for="vat">VAT amount:</label>
+				<input type="number" pattern="[0-9]*" id="vat" name="vat">
 			</div>
 
 			<div data-role="fieldcontain">

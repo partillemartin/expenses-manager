@@ -41,6 +41,8 @@ $post_name = $_POST['name'];
 $post_email = $_POST['email'];
 $data = json_decode($post);
 
+$sek = 0;
+
 $baseRow = 13;
 foreach($data as $r => $dataRow) {
 	$row = $baseRow + $r;
@@ -69,12 +71,23 @@ foreach($data as $r => $dataRow) {
 	  $objPHPExcel->getActiveSheet()->setCellValue('J'.$row, 'x');
 	  break;
 	}
-
+	if (isset($dataRow->vat))
+	{
+		$objPHPExcel->getActiveSheet()->setCellValue('R'.$row, $dataRow->vat);
+	}
 	$objPHPExcel->getActiveSheet()->setCellValue('T'.$row, $dataRow->amount);
 	$objPHPExcel->getActiveSheet()->setCellValue('U'.$row, $dataRow->currency);
+
+
+	//calculate
+	if (isset($dataRow->currency) && $dataRow->currency == "SEK")
+	{
+		$sek += (int)$dataRow->amount;
+	}
 }
 
 $objPHPExcel->getActiveSheet()->setCellValue('B7', $post_name);
+$objPHPExcel->getActiveSheet()->setCellValue('W30', $sek);
 
 $today = date("Ymd");
 
@@ -82,10 +95,11 @@ $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
 $milliseconds = 1000 * strtotime(date('H:i:s'));
 $objWriter->save($milliseconds . '.xls');
 
-$to = $post_email;
+/*$to = $post_email;
 $subject = "Your expenses document";
 $message = "Hello! You can download your xls-file here: " . "http://www." . $_SERVER['SERVER_NAME'] . "/expenses-manager/" . $milliseconds . ".xls";
 $from = "expenses@expenses-manager.com";
 $headers = "From:" . $from;
-mail($to,$subject,$message,$headers);
+mail($to,$subject,$message,$headers);*/
+
 echo "Mail Sent.";

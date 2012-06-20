@@ -95,11 +95,11 @@ $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
 $milliseconds = 1000 * strtotime(date('H:i:s'));
 $objWriter->save($milliseconds . '.xls');
 
-/*$to = $post_email;
+$to = $post_email;
 $subject = "Your expenses document";
 $message = "Hello! You can download your xls-file here: " . "http://www." . $_SERVER['SERVER_NAME'] . "/expenses-manager/" . $milliseconds . ".xls";
 $from = "expenses@expenses-manager.com";
 $headers = "From:" . $from;
-mail($to,$subject,$message,$headers);*/
+mail($to,$subject,$message,$headers);
 
 echo "Mail Sent.";
